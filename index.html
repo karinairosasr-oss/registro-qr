@@ -3,23 +3,97 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Validando Registro...</title>
+    <title>Cupón de Descuento - OnRoad</title>
     <style>
-        body { font-family: sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; background-color: #f0f2f5; text-align: center; }
-        .card { background: white; padding: 2rem; border-radius: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); max-width: 400px; }
-        .loader { border: 4px solid #f3f3f3; border-top: 4px solid #3498db; border-radius: 50%; width: 40px; height: 40px; animation: spin 2s linear infinite; margin: 10px auto; }
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            min-height: 100vh; 
+            margin: 0; 
+            background: linear-gradient(135deg, #ffec3d 0%, #ffc107 100%); 
+            text-align: center; 
+        }
+        .card { 
+            background: white; 
+            padding: 2.5rem; 
+            border-radius: 25px; 
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2); 
+            max-width: 450px; 
+            width: 90%;
+            margin: 20px;
+        }
+        .logo-hb { width: 120px; margin-bottom: 1rem; border-radius: 10px; }
+        .logo-onroad { width: 140px; margin-top: 1.5rem; }
+        
+        h1 { color: #333; font-size: 1.8rem; margin-bottom: 0.5rem; }
+        #status { color: #555; line-height: 1.6; }
+        
+        .promo-box {
+            background: #fff9db;
+            border: 2px dashed #ffc107;
+            padding: 1rem;
+            margin: 1.5rem 0;
+            border-radius: 15px;
+        }
+        .code-text {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #e67e22;
+            display: block;
+            margin: 10px 0;
+        }
+        .instruction {
+            font-size: 0.9rem;
+            color: #d35400;
+            font-weight: bold;
+        }
+        .loader { 
+            border: 5px solid #f3f3f3; 
+            border-top: 5px solid #ffc107; 
+            border-radius: 50%; 
+            width: 50px; 
+            height: 50px; 
+            animation: spin 1s linear infinite; 
+            margin: 20px auto; 
+        }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .hidden { display: none; }
+        .thanks { color: #27ae60; font-weight: bold; font-size: 1.2rem; margin-top: 10px; }
     </style>
 </head>
 <body>
     <div class="card">
-        <div id="icon" class="loader"></div>
-        <h1 id="title">Procesando...</h1>
-        <p id="status">Por favor, acepta el permiso de ubicación para generar tu código único.</p>
+        <!-- Logo HB Hoteles -->
+        <img src="https://i.ibb.co/h7R9XzH/hb-logo.png" alt="HB Hoteles" class="logo-hb">
+        
+        <div id="loading-area">
+            <div class="loader"></div>
+            <h1 id="title">Validando Ubicación...</h1>
+            <p id="status">Por favor, acepta el permiso de ubicación para generar tu beneficio exclusivo.</p>
+        </div>
+
+        <div id="success-area" class="hidden">
+            <h1>¡Gracias por visitarnos!</h1>
+            <div class="promo-box">
+                <p>Presenta este código en caja para obtener el:</p>
+                <span style="font-size: 2rem; font-weight: 900; color: #000;">10% DE DESCUENTO</span>
+                <span id="id-unico" class="code-text">CÓDIGO</span>
+                <p class="instruction">📸 Toma una captura de pantalla de este cupón.</p>
+            </div>
+            <p style="font-size: 0.85rem; color: #666;">
+                Válido solo el <b>10 de mayo</b> en desayuno y comida buffet.<br>
+                Ubicación registrada: <span id="direccion-text" style="font-weight: bold;">---</span>
+            </p>
+            <p class="thanks">¡Gracias por tu preferencia!</p>
+        </div>
+
+        <!-- Logo OnRoad -->
+        <img src="https://i.ibb.co/4T6mGgF/onroad-logo.png" alt="OnRoad Analytics" class="logo-onroad">
     </div>
 
     <script>
-        // CONFIGURACIÓN - PEGA TUS LLAVES AQUÍ
         const GEOAPIFY_KEY = "73282b6f42214899a14ad7ad5421244d"; 
         const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwmO2mnhsQE0cuoMi_dF4OlcrAgJyHycN5D-CTDIC0GmK77YkOPWdRsqYxyXiOeJiT4ww/exec";
 
@@ -33,14 +107,11 @@
                     const { latitude: lat, longitude: lon } = pos.coords;
                     
                     try {
-                        // 1. Obtener dirección
                         const geoRes = await fetch(`https://api.geoapify.com/v1/geocode/reverse?lat=${lat}&lon=${lon}&apiKey=${GEOAPIFY_KEY}`);
                         const geoData = await geoRes.json();
                         const direccion = geoData.features[0].properties.formatted;
-
                         const idUnico = generarID();
 
-                        // 2. Enviar a Google Sheets
                         await fetch(WEB_APP_URL, {
                             method: 'POST',
                             mode: 'no-cors',
@@ -48,16 +119,17 @@
                             body: JSON.stringify({ idUnico, lat, lon, direccion })
                         });
 
-                        // 3. Éxito
-                        document.getElementById('icon').style.display = "none";
-                        document.getElementById('title').innerText = "¡Completado!";
-                        document.getElementById('status').innerHTML = `Tu código es: <b>${idUnico}</b><br><small>Ubicación registrada: ${direccion}</small>`;
+                        // Mostrar interfaz de éxito
+                        document.getElementById('loading-area').classList.add('hidden');
+                        document.getElementById('success-area').classList.remove('hidden');
+                        document.getElementById('id-unico').innerText = idUnico;
+                        document.getElementById('direccion-text').innerText = direccion;
                         
                     } catch (error) {
-                        document.getElementById('status').innerText = "Error al procesar los datos.";
+                        document.getElementById('status').innerText = "Error de conexión. Intenta de nuevo.";
                     }
                 }, () => {
-                    document.getElementById('status').innerText = "Es necesario activar el GPS para continuar.";
+                    document.getElementById('status').innerHTML = "<span style='color:red;'>⚠️ Es necesario activar el GPS y permitir el acceso para obtener el descuento.</span>";
                 });
             }
         }
