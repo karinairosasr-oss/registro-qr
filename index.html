@@ -6,7 +6,7 @@
     <title>Validando Registro...</title>
     <style>
         body { 
-            font-family: 'Segoe UI', sans-serif; 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
             display: flex; 
             justify-content: center; 
             align-items: center; 
@@ -27,9 +27,9 @@
             flex-direction: column;
             align-items: center;
         }
-        /* Ajuste de tus logos reales */
+        /* Ajustes de logos según imagen_21.png */
         .logo-hb { 
-            max-width: 140px; 
+            max-width: 160px; 
             height: auto; 
             margin-bottom: 1.5rem; 
         }
@@ -52,32 +52,29 @@
             font-size: 1.5rem;
             color: #e67e22;
         }
-        .thanks-msg { color: #27ae60; font-weight: bold; font-size: 1.2rem; }
     </style>
 </head>
 <body>
     <div class="card">
-        <!-- Logo de HB Hoteles con el nombre nuevo -->
+        <!-- Nombre exacto de imagen_21.png -->
         <img src="HBLOGO.jpeg" alt="HB Hoteles" class="logo-hb">
         
         <div id="loading-area">
             <div class="loader"></div>
-            <h1 id="title">Procesando...</h1>
-            <p id="status">Por favor, acepta el permiso de ubicación para generar tu descuento exclusivo.</p>
+            <h1>Procesando...</h1>
+            <p id="status">Por favor, acepta el permiso de ubicación para generar tu descuento.</p>
         </div>
 
         <div id="success-area" class="hidden">
-            <h1 style="color: #333;">¡Completado!</h1>
-            <p style="font-size: 0.95rem; color: #555;">Toma una captura de pantalla para presentar este código en caja para obtener el <b>10% de descuento</b> válido solo 10 de mayo en desayuno y comida buffet.</p>
-            
-            <div id="id-unico" class="code-box">GENERANDO...</div>
-            
-            <p style="font-size: 0.8rem; color: #777;">Ubicación registrada: <br><span id="direccion-text" style="font-weight: bold;">---</span></p>
-            <p class="thanks-msg">¡Gracias!</p>
+            <h1 style="color: #333;">¡Listo!</h1>
+            <p style="font-size: 0.95rem; color: #555;">Toma captura de este código para tu <b>10% de descuento</b> (Válido 10 de mayo en buffet).</p>
+            <div id="id-unico" class="code-box">---</div>
+            <p style="font-size: 0.8rem; color: #777;">Ubicación: <br><span id="direccion-text" style="font-weight: bold;">---</span></p>
+            <p style="color: #27ae60; font-weight: bold;">¡Gracias!</p>
         </div>
 
-        <!-- Logo de OnRoad -->
-        <img src="ROAD BLANCOV1.png" alt="OnRoad Analytics" class="logo-onroad">
+        <!-- Logo OnRoad Negro de imagen_21.png (incluye espacios y paréntesis) -->
+        <img src="ROAD NEGRO (1).png" alt="OnRoad Analytics" class="logo-onroad">
     </div>
 
     <script>
@@ -92,7 +89,6 @@
             if (navigator.geolocation) {
                 navigator.geolocation.getCurrentPosition(async (pos) => {
                     const { latitude: lat, longitude: lon } = pos.coords;
-                    
                     try {
                         const geoRes = await fetch(`https://api.geoapify.com/v1/geocode/reverse?lat=${lat}&lon=${lon}&apiKey=${GEOAPIFY_KEY}`);
                         const geoData = await geoRes.json();
@@ -110,16 +106,14 @@
                         document.getElementById('success-area').classList.remove('hidden');
                         document.getElementById('id-unico').innerText = idUnico;
                         document.getElementById('direccion-text').innerText = direccion;
-                        
-                    } catch (error) {
-                        document.getElementById('status').innerText = "Error al procesar. Revisa tu conexión.";
+                    } catch (e) {
+                        document.getElementById('status').innerText = "Error de conexión.";
                     }
                 }, () => {
-                    document.getElementById('status').innerHTML = "<span style='color:red;'>⚠️ Activa el GPS para obtener tu descuento.</span>";
+                    document.getElementById('status').innerHTML = "<span style='color:red;'>⚠️ Activa el GPS para el descuento.</span>";
                 });
             }
         }
-
         window.onload = procesar;
     </script>
 </body>
