@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Validando Registro...</title>
+    <style>
+        body { font-family: sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; background-color: #f0f2f5; text-align: center; }
+        .card { background: white; padding: 2rem; border-radius: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); max-width: 400px; }
+        .loader { border: 4px solid #f3f3f3; border-top: 4px solid #3498db; border-radius: 50%; width: 40px; height: 40px; animation: spin 2s linear infinite; margin: 10px auto; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <div id="icon" class="loader"></div>
+        <h1 id="title">Procesando...</h1>
+        <p id="status">Por favor, acepta el permiso de ubicación para generar tu código único.</p>
+    </div>
+
+    <script>
+        // CONFIGURACIÓN - PEGA TUS LLAVES AQUÍ
+        const GEOAPIFY_KEY = "TU_API_KEY_DE_GEOAPIFY"; 
+        const WEB_APP_URL = "URL_DE_TU_GOOGLE_APPS_SCRIPT";
+
+        function generarID() {
+            return 'QR-' + Math.random().toString(36).substr(2, 9).toUpperCase();
+        }
+
+        function procesar() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(async (pos) => {
+                    const { latitude: lat, longitude: lon } = pos.coords;
+                    
+                    try {
+                        // 1. Obtener dirección
+                        const geoRes = await fetch(`https://api.geoapify.com/v1/geocode/reverse?lat=${lat}&lon=${lon}&apiKey=${GEOAPIFY_KEY}`);
+                        const geoData = await geoRes.json();
+                        const direccion = geoData.features[0].properties.formatted;
+
+                        const idUnico = generarID();
+
+                        // 2. Enviar a Google Sheets
+                        await fetch(WEB_APP_URL, {
+                            method: 'POST',
+                            mode: 'no-cors',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ idUnico, lat, lon, direccion })
+                        });
+
+                        // 3. Éxito
+                        document.getElementById('icon').style.display = "none";
+                        document.getElementById('title').innerText = "¡Completado!";
+                        document.getElementById('status').innerHTML = `Tu código es: <b>${idUnico}</b><br><small>Ubicación registrada: ${direccion}</small>`;
+                        
+                    } catch (error) {
+                        document.getElementById('status').innerText = "Error al procesar los datos.";
+                    }
+                }, () => {
+                    document.getElementById('status').innerText = "Es necesario activar el GPS para continuar.";
+                });
+            }
+        }
+
+        window.onload = procesar;
+    </script>
+</body>
+</html>
