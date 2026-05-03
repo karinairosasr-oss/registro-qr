@@ -27,16 +27,8 @@
             flex-direction: column;
             align-items: center;
         }
-        .logo-hb { 
-            max-width: 160px; 
-            height: auto; 
-            margin-bottom: 1.5rem; 
-        }
-        .logo-onroad { 
-            max-width: 180px; 
-            height: auto; 
-            margin-top: 2rem; 
-        }
+        .logo-hb { max-width: 160px; height: auto; margin-bottom: 1.5rem; }
+        .logo-onroad { max-width: 180px; height: auto; margin-top: 2rem; }
         
         .loader { border: 5px solid #f3f3f3; border-top: 5px solid #ffc107; border-radius: 50%; width: 50px; height: 50px; animation: spin 1s linear infinite; margin: 20px auto; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
@@ -51,7 +43,6 @@
             font-size: 1.5rem;
             color: #e67e22;
         }
-
         .btn-whatsapp {
             background-color: #25d366;
             color: white;
@@ -62,14 +53,11 @@
             display: inline-block;
             margin-top: 15px;
             box-shadow: 0 4px 10px rgba(37, 211, 102, 0.3);
-            transition: 0.3s;
         }
-        .btn-whatsapp:hover { background-color: #128c7e; transform: scale(1.05); }
     </style>
 </head>
 <body>
     <div class="card">
-        <!-- Logo HB -->
         <img src="HBLOGO.jpeg" alt="HB Hoteles" class="logo-hb">
         
         <div id="loading-area">
@@ -80,27 +68,23 @@
 
         <div id="success-area" class="hidden">
             <h1 style="color: #333;">¡Listo!</h1>
-            <p style="font-size: 0.95rem; color: #555;">Toma captura de este código para tu <b>10% de descuento</b> (Válido 10 de mayo en buffet).</p>
-            
+            <p style="font-size: 0.95rem; color: #555;">Toma captura de este código para tu <b>10% de descuento</b>.</p>
             <div id="id-unico" class="code-box">---</div>
 
-            <!-- Botón de WhatsApp -->
             <a id="wa-btn" href="#" target="_blank" class="btn-whatsapp">
                 RESERVAR POR WHATSAPP
             </a>
             
             <p style="font-size: 0.8rem; color: #777; margin-top: 20px;">Ubicación: <br><span id="direccion-text" style="font-weight: bold;">---</span></p>
-            <p style="color: #27ae60; font-weight: bold;">¡Gracias!</p>
         </div>
 
-        <!-- Logo OnRoad Negro -->
         <img src="ROAD NEGRO (1).png" alt="OnRoad Analytics" class="logo-onroad">
     </div>
 
     <script>
         const GEOAPIFY_KEY = "73282b6f42214899a14ad7ad5421244d"; 
         const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwmO2mnhsQE0cuoMi_dF4OlcrAgJyHycN5D-CTDIC0GmK77YkOPWdRsqYxyXiOeJiT4ww/exec";
-        const PHONE_NUMBER = "522711409758"; // Formato internacional para México
+        const PHONE = "522711409758";
 
         function generarID() {
             return 'QR-' + Math.random().toString(36).substr(2, 9).toUpperCase();
@@ -124,22 +108,21 @@
                             body: JSON.stringify({ idUnico, lat, lon, direccion })
                         });
 
-                        // Configurar el botón de WhatsApp con el mensaje
-                        const mensajeTexto = `Hola vi tu publicidad en Onroad y me interesa asistir al evento para celebrar a mamá y conseguir un 10% de descuento con mi codigo: ${idUnico}`;
-                        const finalWaLink = `https://api.whatsapp.com/send?phone=${PHONE_NUMBER}&text=${encodeURIComponent(mensajeTexto)}`;
+                        // CONFIGURACIÓN DEL MENSAJE (wa.me es más efectivo para móviles)
+                        const texto = `Hola vi tu publicidad en Onroad y me interesa asistir al evento para celebrar a mamá y conseguir un 10% de descuento con mi codigo: ${idUnico}`;
+                        const finalLink = `https://wa.me/${PHONE}?text=${encodeURIComponent(texto)}`;
 
-                        // Mostrar resultados
                         document.getElementById('loading-area').classList.add('hidden');
                         document.getElementById('success-area').classList.remove('hidden');
                         document.getElementById('id-unico').innerText = idUnico;
                         document.getElementById('direccion-text').innerText = direccion;
-                        document.getElementById('wa-btn').href = finalWaLink;
+                        document.getElementById('wa-btn').href = finalLink;
 
                     } catch (e) {
                         document.getElementById('status').innerText = "Error de conexión.";
                     }
                 }, () => {
-                    document.getElementById('status').innerHTML = "<span style='color:red;'>⚠️ Activa el GPS para obtener el descuento.</span>";
+                    document.getElementById('status').innerHTML = "<span style='color:red;'>⚠️ Activa el GPS.</span>";
                 });
             }
         }
