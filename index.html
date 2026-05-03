@@ -52,29 +52,24 @@
             color: #e67e22;
         }
 
-        /* Estilo del botón de WhatsApp */
         .btn-whatsapp {
             background-color: #25d366;
             color: white;
             text-decoration: none;
-            padding: 12px 20px;
+            padding: 14px 25px;
             border-radius: 50px;
             font-weight: bold;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
+            display: inline-block;
             margin-top: 15px;
             box-shadow: 0 4px 10px rgba(37, 211, 102, 0.3);
-            transition: transform 0.2s;
+            transition: 0.3s;
         }
-        .btn-whatsapp:active {
-            transform: scale(0.95);
-        }
+        .btn-whatsapp:hover { background-color: #128c7e; transform: scale(1.05); }
     </style>
 </head>
 <body>
     <div class="card">
+        <!-- Logo HB -->
         <img src="HBLOGO.jpeg" alt="HB Hoteles" class="logo-hb">
         
         <div id="loading-area">
@@ -89,22 +84,23 @@
             
             <div id="id-unico" class="code-box">---</div>
 
-            <!-- Botón de WhatsApp Dinámico -->
+            <!-- Botón de WhatsApp -->
             <a id="wa-btn" href="#" target="_blank" class="btn-whatsapp">
-                Reservar por WhatsApp
+                RESERVAR POR WHATSAPP
             </a>
             
             <p style="font-size: 0.8rem; color: #777; margin-top: 20px;">Ubicación: <br><span id="direccion-text" style="font-weight: bold;">---</span></p>
             <p style="color: #27ae60; font-weight: bold;">¡Gracias!</p>
         </div>
 
+        <!-- Logo OnRoad Negro -->
         <img src="ROAD NEGRO (1).png" alt="OnRoad Analytics" class="logo-onroad">
     </div>
 
     <script>
         const GEOAPIFY_KEY = "73282b6f42214899a14ad7ad5421244d"; 
         const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwmO2mnhsQE0cuoMi_dF4OlcrAgJyHycN5D-CTDIC0GmK77YkOPWdRsqYxyXiOeJiT4ww/exec";
-        const WA_BASE_URL = "https://wa.me/message/BGAE7LDJPHMSF1?src=qr";
+        const PHONE_NUMBER = "522711409758"; // Formato internacional para México
 
         function generarID() {
             return 'QR-' + Math.random().toString(36).substr(2, 9).toUpperCase();
@@ -120,7 +116,7 @@
                         const direccion = geoData.features[0].properties.formatted;
                         const idUnico = generarID();
 
-                        // Enviar datos a Google Sheets
+                        // Registro en Google Sheets
                         await fetch(WEB_APP_URL, {
                             method: 'POST',
                             mode: 'no-cors',
@@ -128,26 +124,22 @@
                             body: JSON.stringify({ idUnico, lat, lon, direccion })
                         });
 
-                        // Configurar Mensaje de WhatsApp
-                        const mensajeWA = encodeURIComponent(`Hola vi tu publicidad en Onroad y me interesa asistir al evento para celebrar a mamá y conseguir un 10% de descuento con mi codigo: ${idUnico}`);
-                        // Nota: Usamos el link directo que pasaste y le concatenamos el texto
-                        const finalWaLink = `https://wa.me/5212711234567?text=${mensajeWA}`; // Reemplaza con el número real si el link de mensaje no acepta texto directo, o usa:
-                        const linkAlterno = `https://api.whatsapp.com/send?phone=522717124299&text=${mensajeWA}`; // Ejemplo con el número del hotel
+                        // Configurar el botón de WhatsApp con el mensaje
+                        const mensajeTexto = `Hola vi tu publicidad en Onroad y me interesa asistir al evento para celebrar a mamá y conseguir un 10% de descuento con mi codigo: ${idUnico}`;
+                        const finalWaLink = `https://api.whatsapp.com/send?phone=${PHONE_NUMBER}&text=${encodeURIComponent(mensajeTexto)}`;
 
-                        // Mostrar interfaz
+                        // Mostrar resultados
                         document.getElementById('loading-area').classList.add('hidden');
                         document.getElementById('success-area').classList.remove('hidden');
                         document.getElementById('id-unico').innerText = idUnico;
                         document.getElementById('direccion-text').innerText = direccion;
-                        
-                        // Asignar el link al botón (Usando el número directo para asegurar que el mensaje se pegue)
-                        document.getElementById('wa-btn').href = `https://api.whatsapp.com/send?text=${mensajeWA}`;
+                        document.getElementById('wa-btn').href = finalWaLink;
 
                     } catch (e) {
                         document.getElementById('status').innerText = "Error de conexión.";
                     }
                 }, () => {
-                    document.getElementById('status').innerHTML = "<span style='color:red;'>⚠️ Activa el GPS para el descuento.</span>";
+                    document.getElementById('status').innerHTML = "<span style='color:red;'>⚠️ Activa el GPS para obtener el descuento.</span>";
                 });
             }
         }
